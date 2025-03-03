@@ -1,0 +1,27 @@
+import java.util.ArrayList; 
+import java.util.List; 
+
+public class AutoboxingExample { 
+    public static void main(String[] args) { 
+        String[] numberStrings = {"10", "20", "30", "40", "50"}; 
+        List<Integer> numbers = parseStringArrayToIntegers(numberStrings); 
+        double average = calculateAverage(numbers); 
+        System.out.println("The average of the numbers is: " + average); 
+    } 
+
+    public static List<Integer> parseStringArrayToIntegers(String[] strings) { 
+        List<Integer> integerList = new ArrayList<>(); 
+        for (String str : strings) { 
+            integerList.add(Integer.parseInt(str)); 
+        } 
+        return integerList; 
+    } 
+
+    public static double calculateAverage(List<Integer> numbers) { 
+        int sum = 0; 
+        for (Integer num : numbers) { 
+            sum += num; 
+        } 
+        return (double) sum / numbers.size(); 
+    } 
+}
