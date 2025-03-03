@@ -1,0 +1,177 @@
+import java.io.*;
+import java.util.*;
+
+class Employee implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int id;
+    private String name;
+    private String designation;
+    private double salary;
+
+    public Employee(int id, String name, String designation, double salary) {
+        this.id = id;
+        this.name = name;
+        this.designation = designation;
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee ID: " + id + ", Name: " + name + ", Designation: " + designation + ", Salary: " + salary;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void updateDetails(String name, String designation, double salary) {
+        this.name = name;
+        this.designation = designation;
+        this.salary = salary;
+    }
+}
+
+public class EmployeeManagementSystem {
+    private static final String FILE_NAME = "employees.ser";
+    private static List<Employee> employees = new ArrayList<>();
+
+    public static void addEmployee() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter Employee ID: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+        System.out.print("Enter Employee Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter Designation: ");
+        String designation = scanner.nextLine();
+        System.out.print("Enter Salary: ");
+        double salary = scanner.nextDouble();
+
+        Employee employee = new Employee(id, name, designation, salary);
+        employees.add(employee);
+        saveEmployees();
+        System.out.println("Employee added successfully!");
+    }
+
+    public static void displayAllEmployees() {
+        loadEmployees();
+        if (employees.isEmpty()) {
+            System.out.println("No employees found.");
+        } else {
+            for (Employee employee : employees) {
+                System.out.println(employee);
+            }
+        }
+    }
+
+    public static void removeEmployee() {
+        loadEmployees();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter Employee ID to remove: ");
+        int id = scanner.nextInt();
+        boolean removed = employees.removeIf(employee -> employee.getId() == id);
+        if (removed) {
+            saveEmployees();
+            System.out.println("Employee removed successfully!");
+        } else {
+            System.out.println("Employee with ID " + id + " not found.");
+        }
+    }
+
+    public static void updateEmployee() {
+        loadEmployees();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter Employee ID to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        for (Employee employee : employees) {
+            if (employee.getId() == id) {
+                System.out.print("Enter new Employee Name: ");
+                String name = scanner.nextLine();
+                System.out.print("Enter new Designation: ");
+                String designation = scanner.nextLine();
+                System.out.print("Enter new Salary: ");
+                double salary = scanner.nextDouble();
+                employee.updateDetails(name, designation, salary);
+                saveEmployees();
+                System.out.println("Employee details updated successfully!");
+                return;
+            }
+        }
+        System.out.println("Employee with ID " + id + " not found.");
+    }
+
+    public static void searchEmployee() {
+        loadEmployees();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter Employee ID to search: ");
+        int id = scanner.nextInt();
+
+        for (Employee employee : employees) {
+            if (employee.getId() == id) {
+                System.out.println("Employee found: " + employee);
+                return;
+            }
+        }
+        System.out.println("Employee with ID " + id + " not found.");
+    }
+
+    private static void saveEmployees() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            oos.writeObject(employees);
+        } catch (IOException e) {
+            System.err.println("Error saving employees: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void loadEmployees() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            employees = (List<Employee>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            employees = new ArrayList<>(); // No employees found, start with an empty list
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading employees: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("\nEmployee Management System");
+            System.out.println("1. Add an Employee");
+            System.out.println("2. Display All Employees");
+            System.out.println("3. Remove an Employee");
+            System.out.println("4. Update Employee Details");
+            System.out.println("5. Search for an Employee");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addEmployee();
+                    break;
+                case 2:
+                    displayAllEmployees();
+                    break;
+                case 3:
+                    removeEmployee();
+                    break;
+                case 4:
+                    updateEmployee();
+                    break;
+                case 5:
+                    searchEmployee();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    return;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+    }
+}
