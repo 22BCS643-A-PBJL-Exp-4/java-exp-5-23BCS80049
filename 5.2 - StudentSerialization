@@ -1,0 +1,78 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Student implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int id;
+    private String name;
+    private double gpa;
+
+    public Student(int id, String name, double gpa) {
+        this.id = id;
+        this.name = name;
+        this.gpa = gpa;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{id=" + id + ", name='" + name + "', gpa=" + gpa + "}";
+    }
+}
+
+public class StudentSerialization {
+    private static final String FILE_NAME = "students.ser";
+
+    public static void main(String[] args) {
+        List<Student> students = new ArrayList<>();
+        Scanner scanner = new Scanner(System.in);
+        String continueInput;
+
+        do {
+            System.out.print("Enter student ID: ");
+            int id = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+            System.out.print("Enter student name: ");
+            String name = scanner.nextLine();
+            System.out.print("Enter student GPA: ");
+            double gpa = scanner.nextDouble();
+
+            students.add(new Student(id, name, gpa));
+
+            System.out.print("Do you want to add another student? (yes/no): ");
+            continueInput = scanner.next();
+        } while (continueInput.equalsIgnoreCase("yes"));
+
+        serializeStudents(students);
+        deserializeStudents();
+        scanner.close();
+    }
+
+    public static void serializeStudents(List<Student> students) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            oos.writeObject(students);
+            System.out.println("Student objects serialized successfully.");
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IOException occurred: " + e.getMessage());
+        }
+    }
+
+    public static void deserializeStudents() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            List<Student> students = (List<Student>) ois.readObject();
+            System.out.println("Deserialized Students:");
+            for (Student student : students) {
+                System.out.println(student);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IOException occurred: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.err.println("Class not found: " + e.getMessage());
+        }
+    }
+}
